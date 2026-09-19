@@ -360,17 +360,17 @@ export const BATALLAS: Record<string, DefBatalla> = {
   olvido: {
     enemigo: 'olvido',
     tamano: 180,
-    hp: 240,
-    ataque: 6,
+    hp: 200,
+    ataque: 5,
     puedePerder: true,
     etiqueta: 'PIEDAD',
     bala: 'sombra',
-    // El jefe final es MUCHO más difícil: dos ataques a la vez, más rápidos y más largos
+    // El jefe final es más difícil que los demás (dificultad media): balas algo más rápidas y ataques más largos
     patrones: ['lluvia', 'muros', 'apuntado', 'espiral', 'lados'],
-    simultaneos: 2,
-    intensidad: 1.35,
-    velocidadBalas: 1.25,
-    duracionAtaque: 8000,
+    simultaneos: 1,
+    intensidad: 1.15,
+    velocidadBalas: 1.1,
+    duracionAtaque: 7000,
     inicio: '¡El Olvido los envuelve en oscuridad!',
     textosMenu: [
       'El Olvido susurra: "¿Cómo se llamaba la persona que tienes al lado?"',
@@ -383,31 +383,31 @@ export const BATALLAS: Record<string, DefBatalla> = {
         nombre: 'Recordar',
         narracion: ['{actor} recuerda el día en que conoció a {pareja}.'],
         respuesta: '¡Ese recuerdo es MÍO! ...¿Por qué no puedo borrarlo?',
-        piedad: 12,
+        piedad: 16,
       },
       {
         nombre: 'Te quiero',
         narracion: ['{actor} le dice "te quiero" a {pareja}.', '{pareja} le responde: "yo más".'],
         respuesta: '¡Basta! ¡Esas palabras queman!',
-        piedad: 15,
+        piedad: 20,
       },
       {
         nombre: 'Abrazarse',
         narracion: ['Nott y Vaal se abrazan en medio de la oscuridad.', 'Por un momento, todo brilla.'],
         respuesta: '¡Aaagh! ¡Demasiada luz!',
-        piedad: 15,
+        piedad: 20,
       },
       {
         nombre: 'Reírse',
         narracion: ['Se acuerdan de una broma que solo ellos entienden.', 'Se ríen tanto que les duele la panza.'],
         respuesta: '¡¿Qué es tan gracioso?! ¡No lo entiendo!',
-        piedad: 10,
+        piedad: 12,
       },
     ],
     respuestas: ['Todo se olvida.', 'Ya no se acuerdan de nada...', 'Ríndanse. Es más fácil olvidar.'],
     huir: ['¡No pueden huir!', 'Si no vencen al Olvido, nunca volverán a casa.'],
     fase2: {
-      umbral: 0.6,
+      umbral: 0.5,
       dialogo: [
         'El Olvido se estremece.',
         'OLVIDO: ¡¿Por qué no me temen?! ¡Todo lo que aman va a desaparecer!',
@@ -415,7 +415,8 @@ export const BATALLAS: Record<string, DefBatalla> = {
       ],
       patrones: ['muros', 'espiral', 'apuntado', 'lados', 'lluvia'],
       respuestas: ['¡DESAPAREZCAN!', '¡Olvídense de todo!', '¡No hay nada que recordar!'],
-      simultaneos: 3,
+      // En la segunda fase lanza dos ataques a la vez
+      simultaneos: 2,
       danoExtra: 1,
     },
     victoriaPerdonar: [
