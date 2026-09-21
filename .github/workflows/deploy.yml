@@ -1,5 +1,6 @@
-# Publica el juego en GitHub Pages cada vez que se sube algo a main.
-name: Publicar en GitHub Pages
+# Arma el juego y deja la versión lista para jugar en la raíz del repo,
+# que es lo que publica GitHub Pages (Deploy from a branch: main / root).
+name: Armar el juego
 
 on:
   push:
@@ -7,16 +8,12 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
+  contents: write
 
 jobs:
-  build:
+  armar:
+    # No se vuelve a ejecutar por su propio commit
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,17 +23,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Subir el juego armado
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html juego assets .nojekyll
+          git diff --staged --quiet && echo "Sin cambios" && exit 0
+          git commit -m "Actualizar el juego publicado [skip ci]"
+          git push

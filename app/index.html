@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>Nuestra Historia</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>❤️</text></svg>" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet" />
+    <style>
+      html, body {
+        margin: 0; height: 100%; background: #000; overflow: hidden;
+        touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+        font-family: VT323, monospace;
+      }
+      #app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+      #juego { flex: 1; min-height: 0; position: relative; }
+
+      /* ---------- Controles táctiles ---------- */
+      #tactil { display: none; }
+      body.tactil #tactil { display: block; }
+      @media (orientation: portrait) {
+        /* Como una consola portátil: el juego arriba y los controles en todo el espacio de abajo */
+        body.tactil #juego { flex: none; height: min(75vw, 60vh); margin-top: env(safe-area-inset-top); }
+        body.tactil #tactil { position: relative; flex: 1; min-height: 0; }
+      }
+      @media (orientation: landscape) {
+        body.tactil #tactil { position: absolute; inset: 0; pointer-events: none; }
+      }
+
+      .ctl { position: absolute; pointer-events: auto; touch-action: none; }
+      .dpad { --t: min(36vmin, 170px); width: var(--t); height: var(--t); bottom: 4vmin; }
+      .dpad::before, .dpad::after {
+        content: ''; position: absolute; background: #1c1c28; border: 2px solid #555; border-radius: 8px;
+      }
+      .dpad::before { left: 33%; top: 0; width: 34%; height: 100%; }
+      .dpad::after { top: 33%; left: 0; height: 34%; width: 100%; }
+      .dpad i { position: absolute; z-index: 1; width: 0; height: 0; border: 3.2vmin solid transparent; opacity: .55; }
+      .dpad .u { left: 50%; top: 6%; transform: translateX(-50%); border-bottom-color: #fff; border-top-width: 0; }
+      .dpad .d { left: 50%; bottom: 6%; transform: translateX(-50%); border-top-color: #fff; border-bottom-width: 0; }
+      .dpad .l { top: 50%; left: 6%; transform: translateY(-50%); border-right-color: #fff; border-left-width: 0; }
+      .dpad .r { top: 50%; right: 6%; transform: translateY(-50%); border-left-color: #fff; border-right-width: 0; }
+      .dpad[data-dir~="arriba"] .u, .dpad[data-dir~="abajo"] .d,
+      .dpad[data-dir~="izquierda"] .l, .dpad[data-dir~="derecha"] .r { opacity: 1; }
+
+      .botones { display: flex; align-items: flex-end; gap: 3vmin; }
+      .btn {
+        --b: min(17vmin, 80px); width: var(--b); height: var(--b); border-radius: 50%;
+        display: grid; place-items: center; color: #fff; font-size: calc(var(--b) * .5);
+        background: #b3123a; border: 3px solid #ff7896; box-shadow: 0 4px 0 #5a0a1e;
+      }
+      .btn.b { background: #333347; border-color: #8888aa; box-shadow: 0 4px 0 #15151f; margin-bottom: 5vmin; }
+      .btn.on { transform: translateY(3px); box-shadow: none; filter: brightness(1.3); }
+      .etiqueta { position: absolute; top: -4.5vmin; left: 0; right: 0; text-align: center; color: #ffd84a; font-size: 4vmin; }
+
+      /* 1 jugador: cruceta a la izquierda, botones a la derecha */
+      .uno .dpad { left: 4vmin; }
+      .uno .botones { right: 4vmin; bottom: 5vmin; }
+      /* 2 jugadores: cada uno con su cruceta y sus botones, en su lado */
+      .dos .dpad { --t: min(30vmin, 150px); }
+      .dos .btn { --b: min(13vmin, 64px); }
+      .dos .dpad.j1 { left: 3vmin; }
+      .dos .dpad.j2 { right: 3vmin; }
+      .dos .botones { bottom: calc(min(30vmin, 150px) + 9vmin); }
+      .dos .botones.j1 { left: 3vmin; }
+      .dos .botones.j2 { right: 3vmin; flex-direction: row-reverse; }
+      .dos .j1 .btn, .dos .dpad.j1::before, .dos .dpad.j1::after { border-color: #6f93ff; }
+      .dos .j2 .btn, .dos .dpad.j2::before, .dos .dpad.j2::after { border-color: #ff80e0; }
+      @media (orientation: portrait) {
+        .dos .botones { bottom: auto; top: 7vmin; }
+      }
+
+      .pantalla {
+        top: 8px; right: 8px; width: 36px; height: 36px; display: grid; place-items: center;
+        color: #aaa; font-size: 22px; border: 1px solid #444; border-radius: 6px; background: #000a;
+      }
+      .dos .pantalla { left: 8px; right: auto; }
+      @media (orientation: portrait) { .dos .pantalla { left: 50%; transform: translateX(-50%); } }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div id="juego"></div>
+      <div id="tactil"></div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -39,8 +39,8 @@ Las estrellas brillantes curan y **guardan la partida**; en el título aparece *
 
 ## Agregar sus modelos
 
-1. Copia las imágenes a `public/assets/personajes/nott/` y `public/assets/personajes/vaal/`.
-2. Pon las rutas en [src/data/personajes.ts](src/data/personajes.ts):
+1. Copia las imágenes a `app/public/assets/personajes/nott/` y `app/public/assets/personajes/vaal/`.
+2. Pon las rutas en [src/data/personajes.ts](app/src/data/personajes.ts):
 
 ```ts
 vaal: {
@@ -63,34 +63,34 @@ vaal: {
 
 | Archivo | Qué tiene |
 |---|---|
-| [src/data/historia.ts](src/data/historia.ts) | Prólogo, escenas de historia, final, dedicatoria y créditos |
-| [src/data/salas.ts](src/data/salas.ts) | Cada zona: diálogos, letreros, recuerdos (¡pongan recuerdos reales!), regalos y jefes |
-| [src/data/batallas.ts](src/data/batallas.ts) | Acciones de ACTUAR, respuestas, ataques, vida y textos de victoria |
-| [src/data/objetos.ts](src/data/objetos.ts) | Objetos que curan |
+| [src/data/historia.ts](app/src/data/historia.ts) | Prólogo, escenas de historia, final, dedicatoria y créditos |
+| [src/data/salas.ts](app/src/data/salas.ts) | Cada zona: diálogos, letreros, recuerdos (¡pongan recuerdos reales!), regalos y jefes |
+| [src/data/batallas.ts](app/src/data/batallas.ts) | Acciones de ACTUAR, respuestas, ataques, vida y textos de victoria |
+| [src/data/objetos.ts](app/src/data/objetos.ts) | Objetos que curan |
 
 ## Estructura del código
 
 | Archivo | Qué hace |
 |---|---|
-| `src/flujo.ts` | El orden de la historia (`PASOS`) |
-| `src/estado.ts` | La partida: modo, personaje, HP, objetos y guardado |
-| `src/sistema/entrada.ts` | Controles de 1 y 2 jugadores (teclado y táctil) |
-| `src/ui/tactil.ts` | Cruceta y botones en pantalla para celular |
-| `src/scenes/MapaScene.ts` | Caminar por las zonas |
-| `src/scenes/BatallaScene.ts` | Batallas: turnos, barra de ataque y patrones para esquivar |
-| `src/scenes/HuidaScene.ts` | La huida final |
-| `src/sistema/texturas.ts` | Dibujos provisionales mientras no haya modelos |
+| `app/` | Todo el código fuente |
+| `app/src/flujo.ts` | El orden de la historia (`PASOS`) |
+| `app/src/estado.ts` | La partida: modo, personaje, HP, objetos y guardado |
+| `app/src/sistema/entrada.ts` | Controles de 1 y 2 jugadores (teclado y táctil) |
+| `app/src/ui/tactil.ts` | Cruceta y botones en pantalla para celular |
+| `app/src/scenes/MapaScene.ts` | Caminar por las zonas |
+| `app/src/scenes/BatallaScene.ts` | Batallas: turnos, barra de ataque y patrones para esquivar |
+| `app/src/scenes/HuidaScene.ts` | La huida final |
+| `app/src/sistema/texturas.ts` | Dibujos provisionales mientras no haya modelos |
 
 ## Publicarlo
 
-El juego se publica solo en **GitHub Pages** cada vez que se sube algo a la rama `main`
-(ver [.github/workflows/deploy.yml](.github/workflows/deploy.yml)):
+El juego ya publicado vive en la **raíz del repo** (`index.html` + `juego/`), porque GitHub Pages
+publica la rama `main` tal cual. El workflow [.github/workflows/deploy.yml](.github/workflows/deploy.yml)
+lo vuelve a armar y a subir solo cada vez que se sube un cambio:
 
 **https://nottvk.github.io/sanvalentii/**
 
-La primera vez hay que activarlo una sola vez en GitHub: **Settings → Pages → Source: GitHub Actions**.
-
-Para actualizarlo después de hacer cambios:
+Para actualizarlo:
 
 ```bash
 git add .
@@ -98,4 +98,5 @@ git commit -m "Describe el cambio"
 git push
 ```
 
-En la pestaña **Actions** del repo se ve el progreso; tarda 1 o 2 minutos.
+En 1 o 2 minutos el link muestra la nueva versión (se ve el avance en la pestaña **Actions**).
+Si quieres armarlo tú antes de subirlo, corre `npm run build` y súbelo junto con el resto.
