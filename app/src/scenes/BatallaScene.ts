@@ -589,8 +589,8 @@ export class BatallaScene extends Phaser.Scene {
 
     const patrones = this.fase2 ? this.def.fase2!.patrones : this.def.patrones;
     const base = (this.fase2 ? this.def.fase2!.simultaneos : this.def.simultaneos) ?? 1;
-    // Nunca más de 3 ataques a la vez: con más, la caja es imposible
-    const simultaneos = Math.min(patrones.length, 3, base + this.aj.ataquesExtra);
+    // Entre 1 y 3 ataques a la vez: con más, la caja es imposible de esquivar
+    const simultaneos = Math.max(1, Math.min(patrones.length, 3, base + this.aj.ataquesExtra));
     this.activos = Array.from({ length: simultaneos }, (_, i) => ({
       patron: patrones[(this.turno + i) % patrones.length],
       proxima: 500 + i * 250,

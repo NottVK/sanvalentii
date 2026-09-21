@@ -14,7 +14,7 @@ export interface Ajustes {
   duracion: number;
   /** Cuánto llenan la barra de PIEDAD las acciones de ACTUAR. */
   piedad: number;
-  /** Ataques simultáneos de más. */
+  /** Ataques simultáneos de más (negativo para quitarlos). */
   ataquesExtra: number;
 }
 
@@ -32,10 +32,11 @@ export type DificultadId = 'facil' | 'normal' | 'dificil';
 export const DIFICULTADES: Record<DificultadId, Dificultad> = {
   facil: {
     nombre: 'Fácil',
-    descripcion: 'Para disfrutar la historia sin apuros.\nLos ataques son lentos y perdonan.',
+    descripcion: 'Para disfrutar la historia sin apuros.\nLos ataques son pocos, lentos y perdonan.',
     color: '#7fe8a0',
-    ajustes: { vida: 1, dano: 1, intensidad: 1, velocidad: 1, duracion: 1, piedad: 1, ataquesExtra: 0 },
-    jefeFinal: { vida: 0.85, dano: 0.8, intensidad: 0.9, duracion: 0.85 },
+    ajustes: { vida: 0.8, dano: 0.7, intensidad: 0.85, velocidad: 0.85, duracion: 0.85, piedad: 1.25, ataquesExtra: 0 },
+    // El Olvido baja todavía más y nunca lanza dos ataques a la vez
+    jefeFinal: { vida: 0.7, dano: 0.7, intensidad: 0.8, velocidad: 0.9, duracion: 0.8, piedad: 1.15, ataquesExtra: -1 },
   },
   normal: {
     nombre: 'Normal',

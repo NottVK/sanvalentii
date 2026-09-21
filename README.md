@@ -27,11 +27,14 @@ En el celular, con 2 jugadores cada uno usa su lado de la pantalla (mejor con el
 
 Antes de empezar se elige el nivel (se guarda con la partida):
 
-| Nivel | Cómo se siente | El Olvido (jefe final) |
-|---|---|---|
-| **Fácil** | Para disfrutar la historia sin apuros | 170 de vida, 4 de daño, 1 ataque a la vez |
-| **Normal** | Hay que esquivar de verdad | 242 de vida, 6 de daño, 2 ataques a la vez |
-| **Difícil** | Balas rápidas y sin descanso | 297 de vida, 8 de daño, 3 ataques a la vez |
+| Nivel | Cómo se siente | Rosalía (jefe 1) | El Olvido (jefe final) |
+|---|---|---|---|
+| **Fácil** | Para disfrutar la historia sin apuros | 80 de vida, 3 de daño | 112 de vida, 2 de daño, 1 ataque a la vez |
+| **Normal** | Hay que esquivar de verdad | 115 de vida, 5 de daño | 242 de vida, 6 de daño, 2 ataques a la vez |
+| **Difícil** | Balas rápidas y sin descanso | 135 de vida, 6 de daño | 297 de vida, 8 de daño, 3 ataques a la vez |
+
+En Fácil, además, los ataques duran menos, las balas van más lentas y las acciones de
+ACTUAR llenan la barra de PIEDAD más rápido, así que perdonar a los jefes cuesta menos.
 
 Nott y Vaal tienen 30 HP. Los números de cada nivel están en
 [dificultad.ts](app/src/data/dificultad.ts): `ajustes` cambia todo el juego y `jefeFinal`
