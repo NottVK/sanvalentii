@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "node -e \"require('fs').rmSync('juego',{recursive:true,force:true})\" && tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
