@@ -1,3 +1,4 @@
+import type { DificultadId } from './data/dificultad';
 import { INVENTARIO_INICIAL, type ObjetoId } from './data/objetos';
 import { JUGABLES, pareja, type PersonajeId } from './data/personajes';
 
@@ -5,6 +6,7 @@ export const HP_MAX = 30;
 
 export interface Partida {
   modo: 1 | 2;
+  dificultad: DificultadId;
   /** Personaje del jugador 1 (en 2 jugadores, el jugador 2 usa el otro). */
   p1: PersonajeId;
   /** En qué parte de la historia van (ver PASOS en flujo.ts). */
@@ -17,8 +19,9 @@ export interface Partida {
 
 const CLAVE = 'nuestra-historia-partida';
 
-const crear = (modo: 1 | 2, p1: PersonajeId): Partida => ({
+const crear = (modo: 1 | 2, p1: PersonajeId, dificultad: DificultadId = 'facil'): Partida => ({
   modo,
+  dificultad,
   p1,
   paso: 0,
   inventario: [...INVENTARIO_INICIAL],
@@ -28,8 +31,8 @@ const crear = (modo: 1 | 2, p1: PersonajeId): Partida => ({
 
 export let partida: Partida = crear(1, 'nott');
 
-export function nuevaPartida(modo: 1 | 2, p1: PersonajeId) {
-  partida = crear(modo, p1);
+export function nuevaPartida(modo: 1 | 2, p1: PersonajeId, dificultad: DificultadId) {
+  partida = crear(modo, p1, dificultad);
   guardar();
 }
 

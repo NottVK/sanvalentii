@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { FUENTE } from '../config';
+import { DIFICULTADES, ORDEN_DIFICULTAD, type DificultadId } from '../data/dificultad';
 import { ELENCO, JUGABLES, pareja, type PersonajeId } from '../data/personajes';
 import { nuevaPartida } from '../estado';
 import { irAPaso } from '../flujo';
@@ -14,7 +15,7 @@ const DESCRIPCION: Record<PersonajeId, string> = {
   vaal: 'Dulce, divertida\ny muy terca.\nNo la hagas enojar.',
 };
 
-type Fase = 'modo' | 'personaje' | 'controles' | 'saliendo';
+type Fase = 'modo' | 'personaje' | 'dificultad' | 'controles' | 'saliendo';
 
 const DESC_MODO = [
   'Elige a Nott o a Vaal. Tu pareja te acompañará.',
@@ -26,6 +27,7 @@ export class SeleccionScene extends Phaser.Scene {
   private fase: Fase = 'modo';
   private modo: 1 | 2 = 1;
   private eleccion = 0;
+  private dificultad = 0;
   private menu?: Menu;
   private capa?: Phaser.GameObjects.Container;
   private desc?: Phaser.GameObjects.Text;
@@ -38,6 +40,7 @@ export class SeleccionScene extends Phaser.Scene {
   create() {
     this.capa = undefined;
     this.eleccion = 0;
+    this.dificultad = 0;
     this.cameras.main.fadeIn(400);
     this.mostrarModo();
   }
@@ -93,6 +96,27 @@ export class SeleccionScene extends Phaser.Scene {
     });
   }
 
+  private mostrarDificultad() {
+    this.fase = 'dificultad';
+    this.limpiar();
+    this.texto(320, 60, 'Elige la dificultad', 44);
+    this.desc = this.texto(320, 340, DIFICULTADES[ORDEN_DIFICULTAD[this.dificultad]].descripcion, 24, '#aaaaaa');
+    this.texto(320, 440, 'Se puede cambiar empezando un juego nuevo.', 20, '#777777');
+    this.menu = new Menu(
+      this,
+      240,
+      170,
+      ORDEN_DIFICULTAD.map((id) => DIFICULTADES[id].nombre),
+      entrada.todos,
+      (i) => {
+        this.dificultad = i;
+        this.mostrarControles();
+      },
+      54,
+    );
+    this.menu.seleccionar(this.dificultad);
+  }
+
   private mostrarControles() {
     this.fase = 'controles';
     this.limpiar();
@@ -103,11 +127,13 @@ export class SeleccionScene extends Phaser.Scene {
 
     if (this.modo === 1) {
       this.texto(320, 60, `Juegas con ${n1}`, 42, '#ffd84a');
+      this.mostrarEtiquetaDificultad();
       this.texto(320, 110, `${n2} te acompañará en la aventura.`, 26, '#cccccc');
       this.texto(320, 210, 'Moverse: flechas o W A S D\nAceptar: Z o Enter\nCancelar: X', 30);
       if (esTactil()) this.texto(320, 320, 'En el celular: usa la cruceta y los botones A y B.', 24, '#aaaaaa');
     } else {
       this.texto(320, 50, 'Controles', 42, '#ffd84a');
+      this.mostrarEtiquetaDificultad();
       this.texto(320, 140, `JUGADOR 1 — ${n1}\nMoverse: W A S D    Aceptar: F    Cancelar: G`, 26);
       this.texto(320, 240, `JUGADOR 2 — ${n2}\nMoverse: flechas    Aceptar: K    Cancelar: L`, 26);
       if (esTactil()) {
@@ -118,10 +144,16 @@ export class SeleccionScene extends Phaser.Scene {
     this.tweens.add({ targets: aviso, alpha: 0.3, duration: 600, yoyo: true, repeat: -1 });
   }
 
+  private mostrarEtiquetaDificultad() {
+    const d = DIFICULTADES[ORDEN_DIFICULTAD[this.dificultad]];
+    this.texto(320, 462, `Dificultad: ${d.nombre}`, 22, d.color);
+  }
+
   private comenzar() {
     this.fase = 'saliendo';
     const p1 = JUGABLES[this.eleccion];
-    nuevaPartida(this.modo, p1);
+    const dificultad: DificultadId = ORDEN_DIFICULTAD[this.dificultad];
+    nuevaPartida(this.modo, p1, dificultad);
     entrada.configurar(this.modo);
     montarTactil(this.modo, [ELENCO[p1].nombre, ELENCO[pareja(p1)].nombre]);
     irAPaso(this, 0);
@@ -144,13 +176,17 @@ export class SeleccionScene extends Phaser.Scene {
       }
       if (c.confirmar()) {
         sfx.confirmar();
-        this.mostrarControles();
+        this.mostrarDificultad();
       } else if (c.cancelar()) this.mostrarModo();
+    } else if (this.fase === 'dificultad') {
+      this.menu?.update();
+      if (this.menu) this.desc?.setText(DIFICULTADES[ORDEN_DIFICULTAD[this.menu.indice]].descripcion);
+      if (c.cancelar()) this.mostrarPersonaje();
     } else if (this.fase === 'controles') {
       if (c.confirmar()) {
         sfx.confirmar();
         this.comenzar();
-      } else if (c.cancelar()) this.mostrarPersonaje();
+      } else if (c.cancelar()) this.mostrarDificultad();
     }
   }
 }

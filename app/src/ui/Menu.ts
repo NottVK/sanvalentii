@@ -25,6 +25,12 @@ export class Menu {
     this.pintar();
   }
 
+  /** Deja el cursor en una opción concreta. */
+  seleccionar(i: number) {
+    this.indice = i;
+    this.pintar();
+  }
+
   private pintar() {
     this.textos.forEach((t, i) => t.setColor(i === this.indice ? '#ffff00' : '#ffffff'));
     this.cursor.setY(this.textos[this.indice].y);

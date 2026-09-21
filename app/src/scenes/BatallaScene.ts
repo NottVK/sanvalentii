@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { FUENTE } from '../config';
 import { APOYO, BATALLAS, type AccionBatalla, type DefBatalla, type Patron } from '../data/batallas';
+import { ajustesDe, type Ajustes } from '../data/dificultad';
 import { OBJETOS, type Objeto } from '../data/objetos';
 import { ELENCO, pareja, type Expresion, type PersonajeId } from '../data/personajes';
 import { HP_MAX, guardar, jugadores, partida } from '../estado';
@@ -69,6 +70,11 @@ const aleatorio = <T,>(lista: T[]) => lista[Math.floor(Math.random() * lista.len
 /** Batalla estilo Undertale para 1 o 2 almas: LUCHAR, ACTUAR, OBJETO, PIEDAD y esquivar. */
 export class BatallaScene extends Phaser.Scene {
   private def!: DefBatalla;
+  /** Multiplicadores del nivel de dificultad elegido. */
+  private aj!: Ajustes;
+  /** Vida y daño ya ajustados a la dificultad. */
+  private hpMaxEnemigo = 0;
+  private dano = 0;
   private estado: Estado = 'menu';
   private miembros: Miembro[] = [];
   private actor = 0;
@@ -118,9 +124,12 @@ export class BatallaScene extends Phaser.Scene {
 
   init(data: { id: string }) {
     this.def = BATALLAS[data.id];
+    this.aj = ajustesDe(partida.dificultad, !!this.def.jefeFinal);
+    this.hpMaxEnemigo = Math.round(this.def.hp * this.aj.vida);
+    this.dano = Math.max(1, Math.round(this.def.ataque * this.aj.dano));
     Object.assign(this, {
       estado: 'menu', miembros: [], actor: 0, boton: 0, opciones: [], txtOpciones: [], txtBotones: [], txtStats: [],
-      caja: { ...CAJA_MENU }, cola: [], hpEnemigo: this.def.hp, hpVisual: this.def.hp, piedad: 0, piedadVisual: 0,
+      caja: { ...CAJA_MENU }, cola: [], hpEnemigo: this.hpMaxEnemigo, hpVisual: this.hpMaxEnemigo, piedad: 0, piedadVisual: 0,
       fase2: false, fase2Pendiente: false, respuesta: undefined, balas: [], turno: 0,
     });
   }
@@ -240,7 +249,7 @@ export class BatallaScene extends Phaser.Scene {
       g.fillStyle(color).fillRect(110, y, Math.max(0, valor) * 120, 12);
       g.lineStyle(2, 0xffffff).strokeRect(110, y, 120, 12);
     };
-    if (d.hp > 0) barra(40, this.hpVisual / d.hp, 0x44dd44, 0x662222);
+    if (d.hp > 0) barra(40, this.hpVisual / this.hpMaxEnemigo, 0x44dd44, 0x662222);
     barra(d.hp > 0 ? 62 : 40, this.piedadVisual / PIEDAD_MAX, this.piedadLlena ? AMARILLO : 0xff6fa8, 0x552233);
 
     const conTurno = this.miembros.length > 1 && ['menu', 'submenu', 'texto', 'apuntar'].includes(this.estado);
@@ -454,7 +463,7 @@ export class BatallaScene extends Phaser.Scene {
 
   private reaccionar(a: AccionBatalla) {
     const antes = this.piedad;
-    this.piedad = Math.min(PIEDAD_MAX, this.piedad + a.piedad);
+    this.piedad = Math.min(PIEDAD_MAX, this.piedad + a.piedad * this.aj.piedad);
     sfx.amor();
     this.cambiarExpresion(a.exp);
     if (a.respuesta) this.respuesta = a.respuesta;
@@ -554,7 +563,7 @@ export class BatallaScene extends Phaser.Scene {
         this.hpEnemigo = Math.max(0, this.hpEnemigo - dano);
         this.tweens.add({ targets: this.enemigo, x: 330, duration: 50, yoyo: true, repeat: 3, onComplete: () => this.enemigo.setX(320) });
         const f2 = this.def.fase2;
-        if (f2 && !this.fase2 && this.hpEnemigo > 0 && this.hpEnemigo <= this.def.hp * f2.umbral) {
+        if (f2 && !this.fase2 && this.hpEnemigo > 0 && this.hpEnemigo <= this.hpMaxEnemigo * f2.umbral) {
           this.fase2 = true;
           this.fase2Pendiente = true;
         }
@@ -579,7 +588,9 @@ export class BatallaScene extends Phaser.Scene {
     this.dibujarBotones();
 
     const patrones = this.fase2 ? this.def.fase2!.patrones : this.def.patrones;
-    const simultaneos = Math.min(patrones.length, (this.fase2 ? this.def.fase2!.simultaneos : this.def.simultaneos) ?? 1);
+    const base = (this.fase2 ? this.def.fase2!.simultaneos : this.def.simultaneos) ?? 1;
+    // Nunca más de 3 ataques a la vez: con más, la caja es imposible
+    const simultaneos = Math.min(patrones.length, 3, base + this.aj.ataquesExtra);
     this.activos = Array.from({ length: simultaneos }, (_, i) => ({
       patron: patrones[(this.turno + i) % patrones.length],
       proxima: 500 + i * 250,
@@ -596,7 +607,7 @@ export class BatallaScene extends Phaser.Scene {
 
   private empezarAtaque() {
     this.estado = 'ataque';
-    this.tiempoAtaque = (this.def.duracionAtaque ?? DURACION_ATAQUE) + (this.fase2 ? 1500 : 0);
+    this.tiempoAtaque = ((this.def.duracionAtaque ?? DURACION_ATAQUE) + (this.fase2 ? 1500 : 0)) * this.aj.duracion;
     this.angulo = Math.PI / 2;
     const { x, y, w, h } = this.caja;
     const vivos = this.vivos;
@@ -611,7 +622,7 @@ export class BatallaScene extends Phaser.Scene {
     const cura = !extra.rect && !extra.inofensiva && Math.random() < 0.05;
     const clave = cura ? 'corazon-verde' : this.def.bala;
     // Las balas de algunos jefes van más rápido
-    const rapidez = (this.def.velocidadBalas ?? 1) * (this.fase2 ? 1.15 : 1);
+    const rapidez = (this.def.velocidadBalas ?? 1) * (this.fase2 ? 1.15 : 1) * this.aj.velocidad;
     vx *= rapidez;
     vy *= rapidez;
     const img = this.add.image(x, y, clave).setMask(this.mascara);
@@ -622,7 +633,8 @@ export class BatallaScene extends Phaser.Scene {
   }
 
   private generar(delta: number) {
-    const dificultad = Math.min(1.6, 1 + this.turno * 0.07) * (this.fase2 ? 1.2 : 1) * (this.def.intensidad ?? 1);
+    const dificultad =
+      Math.min(1.6, 1 + this.turno * 0.07) * (this.fase2 ? 1.2 : 1) * (this.def.intensidad ?? 1) * this.aj.intensidad;
     for (const a of this.activos) {
       a.proxima -= delta * dificultad;
       if (a.proxima <= 0) a.proxima = this.disparar(a.patron);
@@ -760,7 +772,7 @@ export class BatallaScene extends Phaser.Scene {
   }
 
   private recibirDano(m: Miembro) {
-    m.hp -= this.def.ataque + (this.fase2 ? (this.def.fase2!.danoExtra ?? 1) : 0);
+    m.hp -= this.dano + (this.fase2 ? (this.def.fase2!.danoExtra ?? 1) : 0);
     m.invulnerable = 1000;
     this.cameras.main.shake(120, 0.006);
     if (m.hp > 0) return sfx.dano();

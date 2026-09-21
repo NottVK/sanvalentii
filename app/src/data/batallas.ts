@@ -55,6 +55,8 @@ export interface DefBatalla {
   victoriaPerdonar: string[];
   victoriaDerrotar: string[];
   premio?: ObjetoId;
+  /** El jefe final recibe un ajuste de dificultad propio (ver dificultad.ts). */
+  jefeFinal?: boolean;
 }
 
 /** En modo 1 jugador, a veces tu pareja te ayuda durante las batallas contra los jefes. */
@@ -359,6 +361,7 @@ export const BATALLAS: Record<string, DefBatalla> = {
   // ---------- Jefe final ----------
   olvido: {
     enemigo: 'olvido',
+    jefeFinal: true,
     tamano: 180,
     hp: 200,
     ataque: 5,
